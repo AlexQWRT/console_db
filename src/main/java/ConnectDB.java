@@ -51,25 +51,12 @@ public class ConnectDB {
         new ConsoleTable.ConsoleTableBuilder().addHeaders(header).addRows(body).restrict(false).build().print();
     }
 
-    public ArrayList<Integer> getTeachersIds() {
-        ArrayList<Integer> teachersIds = new ArrayList<Integer>(0);
-        try {
-            ResultSet result = statement.executeQuery("SELECT teacher_id FROM `teachers`;");
-            while(result.next()) {
-                teachersIds.add(result.getInt(1));
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-        return teachersIds;
-    }
-
     public void displayTeacherTable() {
         try {
             ResultSet result = statement.executeQuery("SELECT * FROM `teachers`;");
             printTable(result);
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            System.out.println("Ошибка базы данных!");
         }
     }
 
@@ -77,9 +64,12 @@ public class ConnectDB {
         try {
             String buf = String.format("INSERT INTO `teachers` (teacher_name, teacher_surname, teacher_patronymic) " +
                             "VALUES ('%s', '%s', '%s');", name, surname, patronymic);
-            statement.executeUpdate(buf);
+            if (statement.executeUpdate(buf) == 0) {
+                throw new SQLException();
+            }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            System.out.println("Ошибка добавления!");
+            return;
         }
         System.out.println("Запись добавлена успешно!");
     }
@@ -87,22 +77,41 @@ public class ConnectDB {
     public void deleteTeacher(int id) {
         try {
             String buf = String.format("DELETE FROM `teachers` where teacher_id=%s;", id);
-            statement.executeUpdate(buf);
+            if (statement.executeUpdate(buf) == 0) {
+                throw new SQLException();
+            }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            System.out.println("Ошибка удаления!");
+            return;
         }
         System.out.println("Учитель успешно удалён!");
     }
 
     public void editTeacher(int id, String name, String surname, String patronymic) {
         try {
-            String buf = String.format("UPDATE `teachers` SET teacher_name='%s', " +
-                    "teacher_surname='%s', teacher_patronymic='%s' where teacher_id=%s;",
-                    name, surname, patronymic, id);
-            statement.executeUpdate(buf);
+            if (name.isEmpty() && surname.isEmpty() && patronymic.isEmpty()) {
+                System.out.println("Редактирование отменено!");
+                return;
+            }
+            String buf = "UPDATE `teachers` SET ";
+            if (!name.isEmpty()) {
+                buf += String.format("teacher_name='%s', ", name);
+            }
+            if (!surname.isEmpty()) {
+                buf += String.format("teacher_surname='%s', ", surname);
+            }
+            if (!patronymic.isEmpty()) {
+                buf += String.format("teacher_patronymic='%s', ", patronymic);
+            }
+            buf = buf.substring(0, buf.length()-2);
+            buf += String.format(" where teacher_id=%s;", id);
+            if (statement.executeUpdate(buf) == 0) {
+                throw new SQLException();
+            }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            System.out.println("Ошибка редактирования!");
+            return;
         }
-        System.out.println("Учительь успешно отредактирован!");
+        System.out.println("Учитель успешно отредактирован!");
     }
 }

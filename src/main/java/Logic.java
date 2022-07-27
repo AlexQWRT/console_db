@@ -23,7 +23,7 @@ public class Logic {
             }
         } catch (Exception ex) {
             System.out.println("Некорректный ввод! Попробуйте снова.");
-            return num;
+            return readInt(min, max);
         }
         return num;
     }
@@ -56,55 +56,22 @@ public class Logic {
 
     public void deleteRecord() {
         db.displayTeacherTable();
-        ArrayList<Integer> teachersIds = db.getTeachersIds();
-        int min = teachersIds.get(0);
-        int max = teachersIds.get(0);
-        for (int i = 0; i < teachersIds.size(); i++) {
-            if (min > teachersIds.get(i)) {
-                min = teachersIds.get(i);
-            }
-            if (max < teachersIds.get(i)) {
-                max = teachersIds.get(i);
-            }
-        }
         System.out.print("Введите id удаляемого учителя: ");
-        int choice = readInt(min, max);
-        while(!teachersIds.contains(choice)) {
-            System.out.println("Введённый вами id не существует, повторите ввод!");
-            System.out.print("Введите id удаляемого учителя: ");
-            choice = readInt(min, max);
-        }
+        int choice = readInt(Integer.MIN_VALUE, Integer.MAX_VALUE);
         db.deleteTeacher(choice);
     }
 
     public void editRecord() {
         db.displayTeacherTable();
-        ArrayList<Integer> teachersIds = db.getTeachersIds();
-        int min = teachersIds.get(0);
-        int max = teachersIds.get(0);
-        for (int i = 0; i < teachersIds.size(); i++) {
-            if (min > teachersIds.get(i)) {
-                min = teachersIds.get(i);
-            }
-            if (max < teachersIds.get(i)) {
-                max = teachersIds.get(i);
-            }
-        }
         System.out.print("Введите id редактируемого учителя: ");
-        int choice = readInt(min, max);
-        while(!teachersIds.contains(choice)) {
-            System.out.println("Введённый вами id не существует, повторите ввод!");
-            System.out.print("Введите id удаляемого учителя: ");
-            choice = readInt(min, max);
-        }
+        int choice = readInt(Integer.MIN_VALUE, Integer.MAX_VALUE);
         String name = "", surname = "", patronymic = "";
-        System.out.print("Введите имя учителя: ");
-        name = in.next();
-        System.out.print("Введите фамилию учителя: ");
-        surname = in.next();
-        System.out.print("Введите отчество учителя: ");
-        patronymic = in.next();
-        in.nextLine();
+        System.out.print("Введите имя учителя (Enter чтобы оставить без изменений): ");
+        name = in.nextLine().trim();
+        System.out.print("Введите фамилию учителя (Enter чтобы оставить без изменений): ");
+        surname = in.nextLine().trim();
+        System.out.print("Введите отчество учителя (Enter чтобы оставить без изменений): ");
+        patronymic = in.nextLine().trim();
         db.editTeacher(choice, name, surname, patronymic);
     }
 
